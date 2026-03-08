@@ -52,3 +52,24 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Visual Studio 2015/2017/2019/2022
+.vs/
+[Tt]est[Cc]onf[Ii][Gg]
+*.user
+*.userosscache
+*.sln.docstates
+*.suo
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Roslyn cache directories
+.vs/
+
+appsettings.Development.json
+/ShiftOne.API/appsettings.Development.json

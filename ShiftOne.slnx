@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="ShiftOne.API/ShiftOne.API.csproj" />
+  <Project Path="ShiftOne.Application/ShiftOne.Application.csproj" />
+  <Project Path="ShiftOne.Domain/ShiftOne.Domain.csproj" />
+  <Project Path="ShiftOne.Infrastructure/ShiftOne.Infrastructure.csproj" />
+</Solution>
