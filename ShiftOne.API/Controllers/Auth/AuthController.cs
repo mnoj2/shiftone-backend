@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShiftOne.Application.Dtos;
-using ShiftOne.Application.Interfaces;
+using ShiftOne.Application.Interfaces.Common;
 
-namespace ShiftOne.API.Controllers {
+namespace ShiftOne.API.Controllers.Auth {
     [Route("api/[controller]")]
     [ApiController]
     public class AuthController : ControllerBase {
@@ -16,7 +16,6 @@ namespace ShiftOne.API.Controllers {
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto request) {
-
             var result = await _authService.LoginAsync(request);
             if(result is null) {
                 return Unauthorized(new { Message = "Login failed: Invalid credentials" });

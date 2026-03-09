@@ -1,9 +1,9 @@
-﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using ShiftOne.Application.Dtos;
-using ShiftOne.Application.Interfaces;
-using ShiftOne.Domain.Interfaces;
+using ShiftOne.Application.Interfaces.Common;
+using ShiftOne.Domain.Interfaces.Common;
 
-namespace ShiftOne.Application.Services {
+namespace ShiftOne.Application.Services.Common {
     public class AuthService : IAuthService {
 
         private readonly IUserRepository _repo;
@@ -17,6 +17,7 @@ namespace ShiftOne.Application.Services {
         }
 
         public async Task<TokenResponseDto?> LoginAsync(LoginDto dto) {
+
             var user = await _repo.GetByEmailAsync(dto.Email);
             if(user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
                 return null; 
@@ -24,7 +25,7 @@ namespace ShiftOne.Application.Services {
             var response = new TokenResponseDto {
                 AccessToken = _tokenService.GenerateAccessToken(user),
                 RefreshToken = _tokenService.GenerateRefreshToken(),
-                Expiration = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_config["Jwt:AccessTokenExpirationMinutes"]))
+                Expiration = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_config["Jwt:AccessTokenExpirationMinutes"] ?? "60"))
             };
 
             user.RefreshToken = response.RefreshToken;
@@ -65,6 +66,5 @@ namespace ShiftOne.Application.Services {
 
             return await _repo.UpdateRefreshTokenAsync(user.Id, string.Empty, DateTime.UtcNow.AddDays(-1));
         }
-
     }
 }

@@ -1,6 +1,86 @@
 @ShiftOne.API_HostAddress = http://localhost:5005
 
-GET {{ShiftOne.API_HostAddress}}/weatherforecast/
-Accept: application/json
+### 1. AUTHENTICATION & INITIAL SETUP
+# Step 1: Login as Admin (Assuming an admin exists in your DB)
+# Note: Use the email/password from your SQL insert script
+POST {{ShiftOne.API_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "worker@factory.com",
+  "password": "test1234"
+}
+
+### 
+# Copy the AccessToken from the response above and paste it here:
+@authToken = <PASTE_TOKEN_HERE>
+
+### 
+
+### 2. ADMIN FEATURES
+# Get all users
+GET {{ShiftOne.API_HostAddress}}/api/admin/users
+Authorization: Bearer {{authToken}}
 
 ###
+# Create a new Worker
+POST {{ShiftOne.API_HostAddress}}/api/admin/users
+Authorization: Bearer {{authToken}}
+Content-Type: application/json
+
+{
+  "name": "John Doe",
+  "email": "john@factory.com",
+  "phone": "1234567890",
+  "role": "Worker",
+  "password": "worker_password"
+}
+
+###
+
+### 3. WORKER FEATURES
+# First Login as the new Worker to get a Worker token
+POST {{ShiftOne.API_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "john@factory.com",
+  "password": "worker_password"
+}
+
+###
+@workerToken = <PASTE_WORKER_TOKEN_HERE>
+
+###
+# Get Worker Home Data
+GET {{ShiftOne.API_HostAddress}}/api/worker/home
+Authorization: Bearer {{workerToken}}
+
+###
+# Sign In (Worker must be near factory coordinates)
+# Coordinates from appsettings: 12.9716, 77.5946
+POST {{ShiftOne.API_HostAddress}}/api/worker/signin
+Authorization: Bearer {{workerToken}}
+Content-Type: application/json
+
+{
+  "lat": 12.9716,
+  "lng": 77.5946
+}
+
+###
+# Get Today's Info
+GET {{ShiftOne.API_HostAddress}}/api/worker/today
+Authorization: Bearer {{workerToken}}
+
+###
+
+### 4. SUPERVISOR FEATURES
+# Get Supervisor Stats
+GET {{ShiftOne.API_HostAddress}}/api/supervisor/stats
+Authorization: Bearer {{authToken}}
+
+###
+# Get Monthly Summary for March 2026
+GET {{ShiftOne.API_HostAddress}}/api/supervisor/monthly-summary?month=3&year=2026
+Authorization: Bearer {{authToken}}

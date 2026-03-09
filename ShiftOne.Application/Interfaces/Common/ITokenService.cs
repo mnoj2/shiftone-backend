@@ -1,6 +1,6 @@
-﻿using ShiftOne.Domain.Entities;
+using ShiftOne.Domain.Entities;
 
-namespace ShiftOne.Application.Interfaces {
+namespace ShiftOne.Application.Interfaces.Common {
     public interface ITokenService {
         string GenerateAccessToken(User user);
         string GenerateRefreshToken();
