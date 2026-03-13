@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using ShiftOne.API.Middleware;
 using ShiftOne.Application.Interfaces;
 using ShiftOne.Application.Interfaces.Admin;
 using ShiftOne.Application.Interfaces.Common;
@@ -41,10 +42,23 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+builder.Services.AddCors(options => {
+    options.AddPolicy("AllowAngularApp",
+        policy => {
+            policy.WithOrigins("http://localhost:4200") 
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials(); 
+        });
+});
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
 builder.Services.AddSwaggerGen(options => {
     options.SwaggerDoc("v1", new OpenApiInfo { Title = "ShiftOne API", Version = "v1" });
 
@@ -75,6 +89,10 @@ if(app.Environment.IsDevelopment()) {
     app.UseSwagger();
     app.UseSwaggerUI(); 
 }
+
+app.UseExceptionHandler();
+app.UseMiddleware<RequestResponseLoggingMiddleware>();
+app.UseCors("AllowAngularApp");
 
 app.UseHttpsRedirection();
 

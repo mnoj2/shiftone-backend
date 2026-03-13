@@ -34,10 +34,10 @@ namespace ShiftOne.Infrastructure.Repositories
             };
         }
 
-        public async Task<bool> HasAttendanceAsync(int userId, DateTime date)
-        {
+        public async Task<bool> HasAttendanceAsync(int userId, DateTime date) {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("SELECT TOP 1 1 FROM AttendanceRecords WHERE UserId = @UserId AND Date = @Date", connection);
+            using var command = new SqlCommand("sp_has_attendance", connection);
+            command.CommandType = CommandType.StoredProcedure;
             command.Parameters.AddWithValue("@UserId", userId);
             command.Parameters.AddWithValue("@Date", date.Date);
 
@@ -46,8 +46,7 @@ namespace ShiftOne.Infrastructure.Repositories
             return result != null;
         }
 
-        public async Task<bool> AddAsync(Attendance attendance)
-        {
+        public async Task<bool> AddAsync(Attendance attendance) {
             using var connection = new SqlConnection(_connectionString);
             using var command = new SqlCommand("sp_add_attendance", connection);
             command.CommandType = CommandType.StoredProcedure;
@@ -67,7 +66,7 @@ namespace ShiftOne.Infrastructure.Repositories
             await connection.OpenAsync();
             await command.ExecuteNonQueryAsync();
 
-            return statusCodeParam.Value?.ToString() == "S";
+            return statusCodeParam.Value?.ToString() == "s";
         }
 
         public async Task<bool> UpdateAsync(Attendance attendance)
@@ -90,13 +89,13 @@ namespace ShiftOne.Infrastructure.Repositories
             await connection.OpenAsync();
             await command.ExecuteNonQueryAsync();
 
-            return statusCodeParam.Value?.ToString() == "S";
+            return statusCodeParam.Value?.ToString() == "s";
         }
 
-        public async Task<Attendance?> GetActiveShiftAsync(int userId, DateTime date)
-        {
+        public async Task<Attendance?> GetActiveShiftAsync(int userId, DateTime date) {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("SELECT TOP 1 * FROM AttendanceRecords WHERE UserId = @UserId AND Date = @Date AND SignOffTime IS NULL", connection);
+            using var command = new SqlCommand("sp_get_active_shift", connection);
+            command.CommandType = CommandType.StoredProcedure;
             command.Parameters.AddWithValue("@UserId", userId);
             command.Parameters.AddWithValue("@Date", date.Date);
 
@@ -106,10 +105,10 @@ namespace ShiftOne.Infrastructure.Repositories
             return null;
         }
 
-        public async Task<Attendance?> GetTodayRecordAsync(int userId, DateTime date)
-        {
+        public async Task<Attendance?> GetTodayRecordAsync(int userId, DateTime date) {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("SELECT TOP 1 * FROM AttendanceRecords WHERE UserId = @UserId AND Date = @Date", connection);
+            using var command = new SqlCommand("sp_get_today_record", connection);
+            command.CommandType = CommandType.StoredProcedure;
             command.Parameters.AddWithValue("@UserId", userId);
             command.Parameters.AddWithValue("@Date", date.Date);
 
@@ -119,10 +118,10 @@ namespace ShiftOne.Infrastructure.Repositories
             return null;
         }
 
-        public async Task<List<Attendance>> GetUserHistoryAsync(int userId)
-        {
+        public async Task<List<Attendance>> GetUserHistoryAsync(int userId) {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("SELECT * FROM AttendanceRecords WHERE UserId = @UserId ORDER BY Date DESC", connection);
+            using var command = new SqlCommand("sp_get_user_history", connection);
+            command.CommandType = CommandType.StoredProcedure;
             command.Parameters.AddWithValue("@UserId", userId);
 
             await connection.OpenAsync();
@@ -135,7 +134,8 @@ namespace ShiftOne.Infrastructure.Repositories
         public async Task<int> GetUserHistoryCountAsync(int userId)
         {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("SELECT COUNT(*) FROM AttendanceRecords WHERE UserId = @UserId", connection);
+            using var command = new SqlCommand("sp_get_user_history_count", connection);
+            command.CommandType = CommandType.StoredProcedure;
             command.Parameters.AddWithValue("@UserId", userId);
 
             await connection.OpenAsync();
@@ -145,7 +145,8 @@ namespace ShiftOne.Infrastructure.Repositories
         public async Task<List<Attendance>> GetByDateRangeAsync(DateTime start, DateTime end)
         {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("SELECT * FROM AttendanceRecords WHERE Date >= @Start AND Date <= @End ORDER BY Date DESC", connection);
+            using var command = new SqlCommand("sp_get_attendance_by_range", connection);
+            command.CommandType = CommandType.StoredProcedure;
             command.Parameters.AddWithValue("@Start", start.Date);
             command.Parameters.AddWithValue("@End", end.Date);
 
@@ -159,7 +160,8 @@ namespace ShiftOne.Infrastructure.Repositories
         public async Task<List<Attendance>> GetMonthlyRecordsAsync(int month, int year)
         {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("SELECT * FROM AttendanceRecords WHERE MONTH(Date) = @Month AND YEAR(Date) = @Year", connection);
+            using var command = new SqlCommand("sp_get_monthly_records", connection);
+            command.CommandType = CommandType.StoredProcedure;
             command.Parameters.AddWithValue("@Month", month);
             command.Parameters.AddWithValue("@Year", year);
 
@@ -170,10 +172,10 @@ namespace ShiftOne.Infrastructure.Repositories
             return list;
         }
 
-        public async Task<List<Attendance>> GetByDateAsync(DateTime date)
-        {
+        public async Task<List<Attendance>> GetByDateAsync(DateTime date) {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("SELECT * FROM AttendanceRecords WHERE Date = @Date", connection);
+            using var command = new SqlCommand("sp_get_attendance_by_date", connection);
+            command.CommandType = CommandType.StoredProcedure;
             command.Parameters.AddWithValue("@Date", date.Date);
 
             await connection.OpenAsync();
@@ -186,7 +188,8 @@ namespace ShiftOne.Infrastructure.Repositories
         public async Task<Attendance?> GetPendingAutoSignOffAsync(int userId, DateTime date)
         {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("SELECT TOP 1 * FROM AttendanceRecords WHERE UserId = @UserId AND Date = @Date AND Status = 'AutoSignedOff'", connection);
+            using var command = new SqlCommand("sp_get_pending_auto_signoff", connection);
+            command.CommandType = CommandType.StoredProcedure;
             command.Parameters.AddWithValue("@UserId", userId);
             command.Parameters.AddWithValue("@Date", date.Date);
 
@@ -199,7 +202,8 @@ namespace ShiftOne.Infrastructure.Repositories
         public async Task<AttendanceSummary?> GetTodayAttendanceAsync(int userId, DateTime date)
         {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("SELECT SignInTime, SignOffTime, TotalHours FROM AttendanceRecords WHERE UserId = @UserId AND Date = @Date", connection);
+            using var command = new SqlCommand("sp_get_today_attendance_summary", connection);
+            command.CommandType = CommandType.StoredProcedure;
             command.Parameters.AddWithValue("@UserId", userId);
             command.Parameters.AddWithValue("@Date", date.Date);
 
@@ -220,7 +224,8 @@ namespace ShiftOne.Infrastructure.Repositories
         public async Task<bool> DeleteByUserIdAsync(int userId)
         {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("DELETE FROM AttendanceRecords WHERE UserId = @UserId", connection);
+            using var command = new SqlCommand("sp_delete_attendance_by_userid", connection);
+            command.CommandType = CommandType.StoredProcedure;
             command.Parameters.AddWithValue("@UserId", userId);
 
             await connection.OpenAsync();

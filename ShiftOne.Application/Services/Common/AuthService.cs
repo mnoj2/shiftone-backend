@@ -24,8 +24,7 @@ namespace ShiftOne.Application.Services.Common {
 
             var response = new TokenResponseDto {
                 AccessToken = _tokenService.GenerateAccessToken(user),
-                RefreshToken = _tokenService.GenerateRefreshToken(),
-                Expiration = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_config["Jwt:AccessTokenExpirationMinutes"] ?? "60"))
+                RefreshToken = _tokenService.GenerateRefreshToken()
             };
 
             user.RefreshToken = response.RefreshToken;
@@ -45,8 +44,7 @@ namespace ShiftOne.Application.Services.Common {
 
             var response = new TokenResponseDto {
                 AccessToken = _tokenService.GenerateAccessToken(user),
-                RefreshToken = _tokenService.GenerateRefreshToken(),
-                Expiration = DateTime.UtcNow.AddMinutes(Convert.ToDouble(_config["Jwt:AccessTokenExpirationMinutes"] ?? "60"))
+                RefreshToken = _tokenService.GenerateRefreshToken()
             };
 
             user.RefreshToken = response.RefreshToken;

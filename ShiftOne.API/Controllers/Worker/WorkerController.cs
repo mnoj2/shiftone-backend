@@ -20,63 +20,48 @@ namespace ShiftOne.API.Controllers.Worker
             _attendanceService = attendanceService;
         }
 
-        [HttpGet("home")]
-        public async Task<IActionResult> GetHome()
-        {
-            var userId = GetUserId();
-            if (userId == 0) return Unauthorized();
-
-            var result = await _workerService.GetHomeAsync(userId);
-            return result == null ? StatusCode(500, "Load failed") : Ok(result);
-        }
 
         [HttpPost("signin")]
-        public async Task<IActionResult> SignIn([FromBody] LocationDto loc)
-        {
+        public async Task<IActionResult> SignIn() {
             var userId = GetUserId();
-            var message = await _attendanceService.SignInAsync(userId, loc.Lat, loc.Lng);
-            return message == null ? BadRequest(new { message = "Sign in failed (Location/Duplicate)" }) : Ok(new { message });
+            var message = await _attendanceService.SignInAsync(userId);
+            return message == null ? BadRequest(new { message = "Sign in failed" }) : Ok(new { message });
         }
 
         [HttpPost("signoff")]
-        public async Task<IActionResult> SignOff([FromBody] LocationDto loc)
-        {
+        public async Task<IActionResult> SignOff() {
             var userId = GetUserId();
-            var message = await _attendanceService.SignOffAsync(userId, loc.Lat, loc.Lng);
-            return message == null ? BadRequest(new { message = "Sign off failed (Location/Not signed in)" }) : Ok(new { message });
+            var message = await _attendanceService.SignOffAsync(userId);
+            return message == null ? BadRequest(new { message = "Sign off failed" }) : Ok(new { message });
         }
 
         [HttpGet("today")]
-        public async Task<IActionResult> GetToday()
-        {
-            var userId = GetUserId();
-            var result = await _attendanceService.GetTodayInfoAsync(userId);
+        public async Task<IActionResult> GetToday() {
+            var result = await _attendanceService.GetTodayInfoAsync(GetUserId());
             return result == null ? NotFound() : Ok(result);
         }
 
         [HttpGet("history")]
-        public async Task<IActionResult> GetHistory()
-        {
+        public async Task<IActionResult> GetHistory() {
             var userId = GetUserId();
             var result = await _attendanceService.GetWorkerHistoryAsync(userId);
             return result == null ? NotFound() : Ok(result);
         }
 
-        [HttpPost("confirm-auto")]
-        public async Task<IActionResult> ConfirmAuto([FromBody] ConfirmAutoDto req)
-        {
+
+        [HttpPost("manual-signoff")]
+        public async Task<IActionResult> ManualSignOff([FromBody] ManualSignOffDto req) {
             var userId = GetUserId();
-            var success = await _attendanceService.ConfirmAutoSignOffAsync(userId, req.Date, req.ActualTime);
-            return success ? Ok(new { message = "Confirmed successfully" }) : BadRequest(new { message = "Confirmation failed" });
+            var success = await _attendanceService.ManualSignOffAsync(userId, req.Date, req.SignOffTime);
+            return success ? Ok(new { message = "Manual sign off successful" }) : BadRequest(new { message = "Manual sign off failed" });
         }
 
-        private int GetUserId()
-        {
+        private int GetUserId() {
             var idClaim = User.FindFirst("id")?.Value ?? User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             return int.TryParse(idClaim, out int id) ? id : 0;
         }
     }
 
-    public class LocationDto { public double Lat { get; set; } public double Lng { get; set; } }
     public class ConfirmAutoDto { public DateTime Date { get; set; } public DateTime ActualTime { get; set; } }
+    public class ManualSignOffDto { public DateTime Date { get; set; } public DateTime SignOffTime { get; set; } }
 }

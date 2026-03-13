@@ -45,7 +45,8 @@ namespace ShiftOne.Infrastructure.Repositories.Common {
 
         public async Task<User?> GetByIdAsync(int id) {
              using var connection = new SqlConnection(_connectionString);
-             using var command = new SqlCommand("SELECT * FROM Users WHERE Id = @Id", connection);
+             using var command = new SqlCommand("sp_get_user_by_id", connection);
+             command.CommandType = CommandType.StoredProcedure;
              command.Parameters.AddWithValue("@Id", id);
              await connection.OpenAsync();
              using var reader = await command.ExecuteReaderAsync();
@@ -73,7 +74,8 @@ namespace ShiftOne.Infrastructure.Repositories.Common {
 
         public async Task<bool> UpdateAsync(User user) {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("UPDATE Users SET Name=@Name, Email=@Email, PasswordHash=@PasswordHash, Phone=@Phone, Role=@Role WHERE Id=@Id", connection);
+            using var command = new SqlCommand("sp_update_user", connection);
+            command.CommandType = CommandType.StoredProcedure;
             command.Parameters.AddWithValue("@Id", user.Id);
             command.Parameters.AddWithValue("@Name", user.Name);
             command.Parameters.AddWithValue("@Email", user.Email);
@@ -87,7 +89,8 @@ namespace ShiftOne.Infrastructure.Repositories.Common {
 
         public async Task<bool> DeleteAsync(int id) {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("DELETE FROM Users WHERE Id = @Id", connection);
+            using var command = new SqlCommand("sp_delete_user", connection);
+            command.CommandType = CommandType.StoredProcedure;
             command.Parameters.AddWithValue("@Id", id);
             await connection.OpenAsync();
             var result = await command.ExecuteNonQueryAsync();
@@ -127,7 +130,8 @@ namespace ShiftOne.Infrastructure.Repositories.Common {
 
         public async Task<List<User>> GetAllWorkersAsync() {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("SELECT * FROM Users WHERE Role = 'Worker'", connection);
+            using var command = new SqlCommand("sp_get_all_workers", connection);
+            command.CommandType = CommandType.StoredProcedure;
             await connection.OpenAsync();
             var list = new List<User>();
             using var reader = await command.ExecuteReaderAsync();
@@ -137,7 +141,8 @@ namespace ShiftOne.Infrastructure.Repositories.Common {
 
         public async Task<List<User>> GetAllUsersAsync() {
             using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("SELECT * FROM Users", connection);
+            using var command = new SqlCommand("sp_get_all_users", connection);
+            command.CommandType = CommandType.StoredProcedure;
             await connection.OpenAsync();
             var list = new List<User>();
             using var reader = await command.ExecuteReaderAsync();

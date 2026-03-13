@@ -4,20 +4,16 @@ using ShiftOne.Domain.Interfaces.Common;
 
 namespace ShiftOne.Application.Services.Admin
 {
-    public class AdminService : IAdminService
-    {
+    public class AdminService : IAdminService {
         private readonly IUserRepository _userRepo;
 
-        public AdminService(IUserRepository userRepo)
-        {
+        public AdminService(IUserRepository userRepo) {
             _userRepo = userRepo;
         }
 
-        public async Task<List<UserDto>?> GetAllUsersAsync()
-        {
+        public async Task<List<UserDto>?> GetAllUsersAsync() {
             var users = await _userRepo.GetAllUsersAsync();
-            return users?.Select(u => new UserDto
-            {
+            return users?.Select(u => new UserDto {
                 Id = u.Id,
                 Name = u.Name,
                 Email = u.Email,
@@ -40,13 +36,11 @@ namespace ShiftOne.Application.Services.Admin
             };
         }
 
-        public async Task<bool> CreateUserAsync(CreateUserDto dto)
-        {
+        public async Task<bool> CreateUserAsync(CreateUserDto dto) {
             var existing = await _userRepo.GetByEmailAsync(dto.Email);
             if (existing != null) return false;
 
-            var user = new User
-            {
+            var user = new User {
                 Name = dto.Name,
                 Email = dto.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
@@ -57,8 +51,7 @@ namespace ShiftOne.Application.Services.Admin
             return await _userRepo.AddAsync(user);
         }
 
-        public async Task<bool> UpdateUserAsync(int id, UpdateUserDto dto)
-        {
+        public async Task<bool> UpdateUserAsync(int id, UpdateUserDto dto) {
             var user = await _userRepo.GetByIdAsync(id);
             if (user == null) return false;
 
@@ -67,8 +60,7 @@ namespace ShiftOne.Application.Services.Admin
             if (!string.IsNullOrWhiteSpace(dto.Phone)) user.Phone = dto.Phone;
             if (!string.IsNullOrWhiteSpace(dto.Role)) user.Role = dto.Role;
 
-            if (!string.IsNullOrWhiteSpace(dto.Password))
-            {
+            if (!string.IsNullOrWhiteSpace(dto.Password)) {
                 user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
             }
 
