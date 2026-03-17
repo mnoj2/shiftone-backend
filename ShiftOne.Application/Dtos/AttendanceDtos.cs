@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ShiftOne.Application.Dtos.Worker
+namespace ShiftOne.Application.Dtos
 {
     public class AttendanceRecordDto
     {

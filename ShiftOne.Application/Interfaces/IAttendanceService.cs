@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using ShiftOne.Application.Dtos.Worker;
+using ShiftOne.Application.Dtos;
 
 namespace ShiftOne.Application.Interfaces
 {

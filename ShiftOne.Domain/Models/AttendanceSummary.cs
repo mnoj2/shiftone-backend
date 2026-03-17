@@ -1,5 +1,3 @@
-using System;
-
 namespace ShiftOne.Domain.Models
 {
     public class AttendanceSummary

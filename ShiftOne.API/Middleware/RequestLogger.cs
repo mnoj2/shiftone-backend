@@ -1,11 +1,11 @@
 using System.Diagnostics;
 
 namespace ShiftOne.API.Middleware {
-    public class RequestResponseLoggingMiddleware {
+    public class RequestLogger {
         private readonly RequestDelegate _next;
-        private readonly ILogger<RequestResponseLoggingMiddleware> _logger;
+        private readonly ILogger<RequestLogger> _logger;
 
-        public RequestResponseLoggingMiddleware(RequestDelegate next, ILogger<RequestResponseLoggingMiddleware> logger) {
+        public RequestLogger(RequestDelegate next, ILogger<RequestLogger> logger) {
             _next = next;
             _logger = logger;
         }

@@ -1,11 +1,8 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using ShiftOne.Application.Interfaces;
-using ShiftOne.Application.Interfaces.Admin;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace ShiftOne.API.Controllers.Admin
+namespace ShiftOne.API.Controllers
 {
     [ApiController]
     [Route("api/admin")]
@@ -62,15 +59,6 @@ namespace ShiftOne.API.Controllers.Admin
                 return BadRequest(new { message = "Delete failed" });
             }
             return Ok(new { message = "User deleted successfully" });
-        }
-
-        [HttpDelete("attendance/{userId}")]
-        public async Task<IActionResult> DeleteAttendance(int userId) {
-            var success = await _attendanceService.DeleteUserAttendanceAsync(userId);
-            if(!success) {
-                return StatusCode(500, "Delete failed");
-            }
-            return Ok(new { message = "Attendance records deleted successfully" });
         }
 
     }

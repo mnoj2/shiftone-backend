@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ShiftOne.API.Middleware
 {
-    public class GlobalExceptionHandler : IExceptionHandler
+    public class ExceptionHandler : IExceptionHandler
     {
-        private readonly ILogger<GlobalExceptionHandler> _logger;
+        private readonly ILogger<ExceptionHandler> _logger;
 
-        public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) {
+        public ExceptionHandler(ILogger<ExceptionHandler> logger) {
             _logger = logger;
         }
 

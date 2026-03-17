@@ -1,19 +1,17 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShiftOne.Application.Interfaces;
-using ShiftOne.Application.Interfaces.Worker;
 using System.Security.Claims;
 
-namespace ShiftOne.API.Controllers.Worker {
+namespace ShiftOne.API.Controllers {
     [ApiController]
     [Route("api/worker")]
     [Authorize(Roles = "Worker")]
     public class WorkerController : ControllerBase {
-        private readonly IWorkerService _workerService;
+
         private readonly IAttendanceService _attendanceService;
 
-        public WorkerController(IWorkerService workerService, IAttendanceService attendanceService) {
-            _workerService = workerService;
+        public WorkerController(IAttendanceService attendanceService) {
             _attendanceService = attendanceService;
         }
 

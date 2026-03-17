@@ -3,18 +3,17 @@ using Microsoft.Extensions.Configuration;
 using ShiftOne.Domain.Entities;
 using ShiftOne.Domain.Interfaces.Common;
 using System.Data;
-using System.Collections.Generic;
 
-namespace ShiftOne.Infrastructure.Repositories.Common {
+namespace ShiftOne.Infrastructure.Repositories {
     public class UserRepository : IUserRepository {
 
         private readonly string _connectionString;
         public UserRepository(IConfiguration configuration) {
-            _connectionString = configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("Connection string not found.");
+            _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string not found.");
         }
 
-        private User MapUser(SqlDataReader reader) {
+
+        private static User MapUser(SqlDataReader reader) {
             return new User {
                 Id = reader.GetInt32(reader.GetOrdinal("Id")),
                 Name = reader.GetString(reader.GetOrdinal("Name")),

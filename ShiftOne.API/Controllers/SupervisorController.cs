@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShiftOne.Application.Interfaces;
 
-namespace ShiftOne.API.Controllers.Supervisor {
+namespace ShiftOne.API.Controllers {
     [ApiController]
     [Route("api/supervisor")]
     [Authorize(Roles = "Supervisor")]

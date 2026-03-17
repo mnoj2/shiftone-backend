@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using ShiftOne.Application.Dtos;
 
-namespace ShiftOne.Application.Interfaces.Admin
+namespace ShiftOne.Application.Interfaces
 {
     public interface IAdminService
     {

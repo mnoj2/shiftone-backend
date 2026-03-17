@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using ShiftOne.Application.Dtos.Worker;
+using ShiftOne.Application.Dtos;
 using ShiftOne.Application.Interfaces;
 using ShiftOne.Domain.Entities;
 using ShiftOne.Domain.Interfaces;

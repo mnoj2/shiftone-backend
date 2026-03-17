@@ -1,9 +1,5 @@
-using System;
-
-namespace ShiftOne.Domain.Entities.Worker
-{
-    public class Shift
-    {
+﻿namespace ShiftOne.Domain.Entities {
+    public class Worker {
         public int Id { get; set; }
         public int UserId { get; set; }
         public DateTime Date { get; set; }

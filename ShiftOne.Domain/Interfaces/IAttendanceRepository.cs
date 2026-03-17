@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using ShiftOne.Domain.Entities;
 using ShiftOne.Domain.Models;
 
@@ -21,5 +18,6 @@ namespace ShiftOne.Domain.Interfaces
         Task<Attendance?> GetPendingAutoSignOffAsync(int userId, DateTime date);
         Task<AttendanceSummary?> GetTodayAttendanceAsync(int userId, DateTime date);
         Task<bool> DeleteByUserIdAsync(int userId);
+        Task<Attendance?> GetShiftByWorkerAndDateAsync(int workerId, DateTime date);
     }
 }

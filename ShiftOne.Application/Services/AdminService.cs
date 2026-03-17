@@ -1,8 +1,8 @@
-using ShiftOne.Application.Interfaces.Admin;
+using ShiftOne.Application.Interfaces;
 using ShiftOne.Domain.Entities;
 using ShiftOne.Domain.Interfaces.Common;
 
-namespace ShiftOne.Application.Services.Admin
+namespace ShiftOne.Application.Services
 {
     public class AdminService : IAdminService {
         private readonly IUserRepository _userRepo;
