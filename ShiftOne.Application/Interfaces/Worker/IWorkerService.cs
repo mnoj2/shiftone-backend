@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using ShiftOne.Application.Dtos.Worker;
 
 namespace ShiftOne.Application.Interfaces.Worker

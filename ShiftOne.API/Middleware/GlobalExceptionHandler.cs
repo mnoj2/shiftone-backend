@@ -7,45 +7,26 @@ namespace ShiftOne.API.Middleware
     {
         private readonly ILogger<GlobalExceptionHandler> _logger;
 
-        public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger)
-        {
+        public GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) {
             _logger = logger;
         }
 
-        public async ValueTask<bool> TryHandleAsync(
-            HttpContext httpContext,
-            Exception exception,
-            CancellationToken cancellationToken)
-        {
-            _logger.LogError(exception, "An unhandled exception occurred: {Message}", exception.Message);
+        public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken) {
 
-            var problemDetails = new ProblemDetails
-            {
-                Status = StatusCodes.Status500InternalServerError,
-                Title = "An error occurred while processing your request.",
-                Detail = exception.Message,
+            _logger.LogError(exception, "Unhandled exception on {Method} {Path}: {Message}",
+              httpContext.Request.Method,
+              httpContext.Request.Path,
+              exception.Message);
+
+            var problemDetails = new ProblemDetails {
                 Type = exception.GetType().Name,
+                Title = "An error occurred while processing your request",
+                Status = StatusCodes.Status500InternalServerError,
+                Detail = exception.Message,
                 Instance = httpContext.Request.Path
             };
 
-            if (exception is UnauthorizedAccessException)
-            {
-                problemDetails.Status = StatusCodes.Status401Unauthorized;
-                problemDetails.Title = "Unauthorized access";
-            }
-            else if (exception is KeyNotFoundException)
-            {
-                problemDetails.Status = StatusCodes.Status404NotFound;
-                problemDetails.Title = "Resource not found";
-            }
-            else if (exception is ArgumentException || exception is InvalidOperationException)
-            {
-                problemDetails.Status = StatusCodes.Status400BadRequest;
-                problemDetails.Title = "Bad request";
-            }
-
             httpContext.Response.StatusCode = problemDetails.Status.Value;
-
             await httpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
 
             return true;

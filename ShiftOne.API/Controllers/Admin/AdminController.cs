@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using ShiftOne.Application.Interfaces;
 using ShiftOne.Application.Interfaces.Admin;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ShiftOne.API.Controllers.Admin
 {
@@ -20,37 +22,55 @@ namespace ShiftOne.API.Controllers.Admin
         [HttpGet("users")]
         public async Task<IActionResult> GetAllUsers() {
             var result = await _adminService.GetAllUsersAsync();
-            return result == null ? StatusCode(500, "Load failed") : Ok(result);
+            if(result == null) {
+                return StatusCode(500, "Load failed");
+            }
+            return Ok(result);
         }
 
         [HttpGet("users/{id}")]
         public async Task<IActionResult> GetUser(int id) {
             var result = await _adminService.GetUserByIdAsync(id);
-            return result == null ? NotFound() : Ok(result);
+            if(result == null) {
+                return NotFound();
+            }
+            return Ok(result);
         }
 
         [HttpPost("users")]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserDto dto) {
             var success = await _adminService.CreateUserAsync(dto);
-            return success ? Ok(new { message = "User created successfully" }) : BadRequest(new { message = "Create failed (Email may already exist)" });
+            if(!success) {
+                return BadRequest(new { message = "User with this email already exists" });
+            }
+            return Ok(new { message = "User created successfully" });
         }
 
         [HttpPut("users/{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDto dto) {
             var success = await _adminService.UpdateUserAsync(id, dto);
-            return success ? Ok(new { message = "User updated successfully" }) : BadRequest(new { message = "Update failed" });
+            if(!success) {
+                return BadRequest(new { message = "Update failed" });
+            }
+            return Ok(new { message = "User updated successfully" });
         }
 
         [HttpDelete("users/{id}")]
         public async Task<IActionResult> DeleteUser(int id) {
             var success = await _adminService.DeleteUserAsync(id);
-            return success ? Ok(new { message = "User deleted successfully" }) : BadRequest(new { message = "Delete failed" });
+            if(!success) {
+                return BadRequest(new { message = "Delete failed" });
+            }
+            return Ok(new { message = "User deleted successfully" });
         }
 
         [HttpDelete("attendance/{userId}")]
         public async Task<IActionResult> DeleteAttendance(int userId) {
             var success = await _attendanceService.DeleteUserAttendanceAsync(userId);
-            return success ? Ok(new { message = "Attendance records deleted successfully" }) : StatusCode(500, "Delete failed");
+            if(!success) {
+                return StatusCode(500, "Delete failed");
+            }
+            return Ok(new { message = "Attendance records deleted successfully" });
         }
 
     }
