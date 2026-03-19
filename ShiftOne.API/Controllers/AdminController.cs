@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShiftOne.Application.Interfaces;
+using ShiftOne.Application.Dtos;
 
 namespace ShiftOne.API.Controllers
 {
@@ -8,11 +9,10 @@ namespace ShiftOne.API.Controllers
     [Route("api/admin")]
     [Authorize(Roles = "Admin")]
     public class AdminController : ControllerBase {
-        private readonly IAttendanceService _attendanceService;
+
         private readonly IAdminService _adminService;
 
-        public AdminController(IAttendanceService attendanceService, IAdminService adminService) {
-            _attendanceService = attendanceService;
+        public AdminController(IAdminService adminService) {
             _adminService = adminService;
         }
 
@@ -59,6 +59,24 @@ namespace ShiftOne.API.Controllers
                 return BadRequest(new { message = "Delete failed" });
             }
             return Ok(new { message = "User deleted successfully" });
+        }
+
+        [HttpPost("scan-form")]
+        public async Task<IActionResult> ScanForm(IFormFile file) {
+            if(file == null || file.Length == 0) {
+                return BadRequest(new { message = "No file provided" });
+            }
+
+            var result = await _adminService.ExtractFormDataAsync(
+                file.OpenReadStream(),
+                file.FileName ?? "upload.jpg",
+                file.ContentType ?? "image/jpeg"
+            );
+
+            if(result == null) {
+                return StatusCode(500, new { message = "OCR extraction failed" });
+            }
+            return Ok(result);
         }
 
     }

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using ShiftOne.Domain.Entities;
 
 namespace ShiftOne.Domain.Interfaces.Common {

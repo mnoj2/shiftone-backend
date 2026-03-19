@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using ShiftOne.Application.Dtos;
 
 namespace ShiftOne.Application.Interfaces
@@ -11,32 +9,7 @@ namespace ShiftOne.Application.Interfaces
         Task<bool> CreateUserAsync(CreateUserDto dto);
         Task<bool> UpdateUserAsync(int id, UpdateUserDto dto);
         Task<bool> DeleteUserAsync(int id);
+        Task<FormExtractDto?> ExtractFormDataAsync(Stream fileStream, string fileName, string contentType);
     }
 
-    public class UserDto
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
-        public string Role { get; set; } = string.Empty;
-    }
-
-    public class CreateUserDto
-    {
-        public string Name { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
-        public string Role { get; set; } = "Worker";
-    }
-
-    public class UpdateUserDto
-    {
-        public string Name { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public string Phone { get; set; } = string.Empty;
-        public string Role { get; set; } = string.Empty;
-    }
 }

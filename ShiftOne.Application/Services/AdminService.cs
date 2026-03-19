@@ -1,6 +1,8 @@
+using ShiftOne.Application.Dtos;
 using ShiftOne.Application.Interfaces;
 using ShiftOne.Domain.Entities;
 using ShiftOne.Domain.Interfaces.Common;
+using System.Text.Json;
 
 namespace ShiftOne.Application.Services
 {
@@ -70,6 +72,25 @@ namespace ShiftOne.Application.Services
         public async Task<bool> DeleteUserAsync(int id)
         {
             return await _userRepo.DeleteAsync(id);
+        }
+
+        public async Task<FormExtractDto?> ExtractFormDataAsync(Stream fileStream, string fileName, string contentType) {
+            using var client = new HttpClient();
+            using var form = new MultipartFormDataContent();
+            using var fileContent = new StreamContent(fileStream);
+
+            fileContent.Headers.ContentType =
+                new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+
+            form.Add(fileContent, "file", fileName);
+
+            var response = await client.PostAsync("http://localhost:8001/extract", form);
+            if(!response.IsSuccessStatusCode)
+                return null;
+
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<FormExtractDto>(json,
+                new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
     }
 }
