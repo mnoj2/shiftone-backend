@@ -11,9 +11,11 @@ namespace ShiftOne.API.Controllers
     public class AdminController : ControllerBase {
 
         private readonly IAdminService _adminService;
+        private readonly IOcrService _ocrService;
 
-        public AdminController(IAdminService adminService) {
+        public AdminController(IAdminService adminService, IOcrService ocrService) {
             _adminService = adminService;
+            _ocrService = ocrService;
         }
 
         [HttpGet("users")]
@@ -67,10 +69,10 @@ namespace ShiftOne.API.Controllers
                 return BadRequest(new { message = "No file provided" });
             }
 
-            var result = await _adminService.ExtractFormDataAsync(
+            var result = await _ocrService.ExtractFormDataAsync(
                 file.OpenReadStream(),
-                file.FileName ?? "upload.jpg",
-                file.ContentType ?? "image/jpeg"
+                file.FileName,
+                file.ContentType
             );
 
             if(result == null) {
