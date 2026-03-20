@@ -5,22 +5,26 @@ using ShiftOne.API.Middleware;
 using ShiftOne.Application.Interfaces;
 using ShiftOne.Application.Interfaces.Common;
 using ShiftOne.Application.Services;
+using ShiftOne.Application.Services.Admin;
 using ShiftOne.Application.Services.Common;
 using ShiftOne.Domain.Interfaces;
 using ShiftOne.Domain.Interfaces.Common;
 using ShiftOne.Infrastructure.Repositories;
+using ShiftOne.Infrastructure.Repositories.Common;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IOcrService, OcrService>();
 
 builder.Services.AddScoped<IAttendanceService, AttendanceService>();
 builder.Services.AddScoped<IAdminService, AdminService>();
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IAttendanceRepository, AttendanceRepository>();
+builder.Services.AddHttpClient<IOcrRepository, OcrRepository>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options => {
