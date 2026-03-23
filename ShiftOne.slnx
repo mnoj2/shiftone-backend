@@ -3,4 +3,5 @@
   <Project Path="ShiftOne.Application/ShiftOne.Application.csproj" />
   <Project Path="ShiftOne.Domain/ShiftOne.Domain.csproj" />
   <Project Path="ShiftOne.Infrastructure/ShiftOne.Infrastructure.csproj" />
+  <Project Path="ShiftOne.Tests/ShiftOne.Tests.csproj" Id="d652a825-6506-4991-b2e3-15e8b77b0303" />
 </Solution>

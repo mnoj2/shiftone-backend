@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Configuration;
 using ShiftOne.Application.Dtos;
 using ShiftOne.Application.Interfaces.Common;
 using ShiftOne.Domain.Interfaces.Common;
@@ -8,12 +7,10 @@ namespace ShiftOne.Application.Services.Common {
 
         private readonly IUserRepository _repo;
         private readonly ITokenService _tokenService;
-        private readonly IConfiguration _config;
 
-        public AuthService(IUserRepository repo, ITokenService tokenService, IConfiguration config) {
+        public AuthService(IUserRepository repo, ITokenService tokenService) {
             _repo = repo;
             _tokenService = tokenService;
-            _config = config;
         }
 
         public async Task<TokenResponseDto?> LoginAsync(LoginDto dto) {
