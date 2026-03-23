@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-
 namespace ShiftOne.Application.Dtos
 {
     public class AttendanceRecordDto
@@ -11,6 +8,13 @@ namespace ShiftOne.Application.Dtos
         public DateTime? SignInTime { get; set; }
         public DateTime? SignOffTime { get; set; }
         public string Status { get; set; } = string.Empty;
+        public double? TotalHours { get; set; }
+    }
+
+    public class AttendanceInfoDto {
+        public string Status { get; set; } = string.Empty;
+        public DateTime? SignInTime { get; set; }
+        public DateTime? SignOffTime { get; set; }
         public double? TotalHours { get; set; }
     }
 

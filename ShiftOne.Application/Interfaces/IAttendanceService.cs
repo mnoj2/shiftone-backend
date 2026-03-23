@@ -4,8 +4,8 @@ namespace ShiftOne.Application.Interfaces
 {
     public interface IAttendanceService
     {
-        Task<string?> SignInAsync(int userId);
-        Task<string?> SignOffAsync(int userId);
+        Task<string?> SignInAsync(int userId, double lat, double lng);
+        Task<string?> SignOffAsync(int userId, double lat, double lng);
         Task<AttendanceInfoDto?> GetTodayInfoAsync(int userId);
         Task<List<WorkerDto>?> GetAllWorkersAsync();
         Task<List<AttendanceRecordDto>?> GetWorkerHistoryAsync(int userId);
@@ -15,13 +15,5 @@ namespace ShiftOne.Application.Interfaces
         Task<bool> ConfirmAutoSignOffAsync(int userId, DateTime date, DateTime actualSignOffTime);
         Task<bool> ManualSignOffAsync(int userId, DateTime date, DateTime signOffTime);
         Task<bool> DeleteUserAttendanceAsync(int userId);
-    }
-
-    public class AttendanceInfoDto
-    {
-        public string Status { get; set; } = string.Empty;
-        public DateTime? SignInTime { get; set; }
-        public DateTime? SignOffTime { get; set; }
-        public double? TotalHours { get; set; }
     }
 }

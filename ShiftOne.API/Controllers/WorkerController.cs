@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ShiftOne.Application.Dtos;
 using ShiftOne.Application.Interfaces;
 using System.Security.Claims;
 
@@ -16,9 +17,9 @@ namespace ShiftOne.API.Controllers {
         }
 
         [HttpPost("signin")]
-        public async Task<IActionResult> SignIn() {
+        public async Task<IActionResult> SignIn([FromBody] SignInDto req) {
             var userId = GetUserId();
-            var message = await _attendanceService.SignInAsync(userId);
+            var message = await _attendanceService.SignInAsync(userId, req.Latitude, req.Longitude);
             if(message == null) {
                 return BadRequest(new { message = "Sign in failed" });
             }
@@ -26,9 +27,9 @@ namespace ShiftOne.API.Controllers {
         }
 
         [HttpPost("signoff")]
-        public async Task<IActionResult> SignOff() {
+        public async Task<IActionResult> SignOff([FromBody] SignOffDto req) {
             var userId = GetUserId();
-            var message = await _attendanceService.SignOffAsync(userId);
+            var message = await _attendanceService.SignOffAsync(userId, req.Latitude, req.Longitude);
             if(message == null) {
                 return BadRequest(new { message = "Sign off failed" });
             }
@@ -70,8 +71,4 @@ namespace ShiftOne.API.Controllers {
         }
     }
 
-    public class ManualSignOffDto {
-        public DateTime Date { get; set; }
-        public DateTime SignOffTime { get; set; }
-    }
 }

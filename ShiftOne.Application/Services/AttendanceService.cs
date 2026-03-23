@@ -12,11 +12,12 @@ namespace ShiftOne.Application.Services
         private readonly IAttendanceRepository _repo;
         private readonly IUserRepository _userRepo;
         private readonly IConfiguration _config;
+        private readonly ILocationService _locationService;
 
-        public AttendanceService(IAttendanceRepository repo, IUserRepository userRepo, IConfiguration config)
-        {
+        public AttendanceService(IAttendanceRepository repo, IUserRepository userRepo,ILocationService locationService, IConfiguration config) {
             _repo = repo;
             _userRepo = userRepo;
+            _locationService = locationService;
             _config = config;
         }
 
@@ -28,7 +29,9 @@ namespace ShiftOne.Application.Services
 
         private DateTime GetFactoryLocalDate() => GetFactoryNow().Date;
 
-        public async Task<string?> SignInAsync(int userId) {
+        public async Task<string?> SignInAsync(int userId, double lat, double lng) {
+
+            _locationService.IsWithinRadius(lat, lng);
 
             var today = GetFactoryLocalDate();
             if (await _repo.HasAttendanceAsync(userId, today)) return null;
@@ -43,7 +46,9 @@ namespace ShiftOne.Application.Services
             return await _repo.AddAsync(record) ? "Signed In Successfully" : null;
         }
 
-        public async Task<string?> SignOffAsync(int userId) {
+        public async Task<string?> SignOffAsync(int userId, double lat, double lng) {
+
+            _locationService.IsWithinRadius(lat, lng);
 
             var today = GetFactoryLocalDate();
             var record = await _repo.GetActiveShiftAsync(userId, today);
