@@ -7,11 +7,9 @@ namespace ShiftOne.Application.Services
 {
     public class AdminService : IAdminService {
         private readonly IUserRepository _userRepo;
-        private readonly IOcrService _ocrService;
 
-        public AdminService(IUserRepository userRepo, IOcrService ocrService) {
+        public AdminService(IUserRepository userRepo) {
             _userRepo = userRepo;
-            _ocrService = ocrService;
         }
 
         public async Task<List<UserDto>?> GetAllUsersAsync() {

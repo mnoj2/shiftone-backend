@@ -4,6 +4,7 @@ using ShiftOne.Application.Interfaces;
 using ShiftOne.Domain.Entities;
 using ShiftOne.Domain.Interfaces;
 using ShiftOne.Domain.Interfaces.Common;
+using ShiftOne.Domain.Constants;
 
 namespace ShiftOne.Application.Services
 {
@@ -40,7 +41,7 @@ namespace ShiftOne.Application.Services
                 UserId = userId,
                 Date = today,
                 SignInTime = DateTime.UtcNow,
-                Status = "SignedIn"
+                Status = AttendanceStatus.SignedIn
             };
 
             return await _repo.AddAsync(record) ? "Signed In Successfully" : null;
@@ -60,7 +61,7 @@ namespace ShiftOne.Application.Services
                 double totalMinutes = (record.SignOffTime.Value - record.SignInTime.Value).TotalMinutes;
                 record.TotalHours = Math.Max(0, totalMinutes / 60.0);
             }
-            record.Status = "SignedOff";
+            record.Status = AttendanceStatus.SignedOff;
 
             return await _repo.UpdateAsync(record) ? "Signed Off Successfully" : null;
         }
@@ -71,12 +72,12 @@ namespace ShiftOne.Application.Services
 
             if (record == null) { 
                 return new AttendanceInfoDto {
-                    Status = "Not Started"
+                    Status = AttendanceStatus.NotStarted
                 };
             }
 
             double? displayHours = record.TotalHours;
-            if (record.Status == "SignedIn" && record.SignInTime.HasValue) {
+            if (record.Status == AttendanceStatus.SignedIn && record.SignInTime.HasValue) {
                 var now = DateTime.UtcNow;
                 double rawMinutes = (now - record.SignInTime.Value).TotalMinutes;
                 displayHours = Math.Max(0, rawMinutes / 60.0);
@@ -187,13 +188,13 @@ namespace ShiftOne.Application.Services
                 double totalMinutes = (record.SignOffTime.Value - record.SignInTime.Value).TotalMinutes;
                 record.TotalHours = Math.Max(0, totalMinutes / 60.0);
             }
-            record.Status = "SignedOff";
+            record.Status = AttendanceStatus.SignedOff;
             return await _repo.UpdateAsync(record);
         }
 
         public async Task<bool> ManualSignOffAsync(int userId, DateTime date, DateTime signOffTime) {
             var record = await _repo.GetActiveShiftAsync(userId, date.Date);
-            if (record == null || record.Status != "SignedIn") return false;
+            if (record == null || record.Status != AttendanceStatus.SignedIn) return false;
 
             record.SignOffTime = signOffTime;
 
@@ -202,7 +203,7 @@ namespace ShiftOne.Application.Services
                 record.TotalHours = Math.Max(0, totalMinutes / 60.0);
             }
 
-            record.Status = "SignedOff";
+            record.Status = AttendanceStatus.SignedOff;
 
             return await _repo.UpdateAsync(record);
         }

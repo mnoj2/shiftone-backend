@@ -1,10 +1,5 @@
-﻿namespace ShiftOne.Application.Dtos {
-    public class SignInDto {
-        public double Latitude { get; set; }
-        public double Longitude { get; set; }
-    }
-
-    public class SignOffDto {
+namespace ShiftOne.Application.Dtos {
+    public class LocationDto {
         public double Latitude { get; set; }
         public double Longitude { get; set; }
     }

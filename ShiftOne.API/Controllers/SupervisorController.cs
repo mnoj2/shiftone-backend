@@ -2,10 +2,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ShiftOne.Application.Interfaces;
 
+using ShiftOne.Domain.Constants;
+
 namespace ShiftOne.API.Controllers {
     [ApiController]
     [Route("api/supervisor")]
-    [Authorize(Roles = "Supervisor")]
+    [Authorize(Roles = UserRoles.Supervisor)]
     public class SupervisorController : ControllerBase {
         private readonly IAttendanceService _attendanceService;
 

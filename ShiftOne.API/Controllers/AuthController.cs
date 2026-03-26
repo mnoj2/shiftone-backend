@@ -42,5 +42,10 @@ namespace ShiftOne.API.Controllers.Auth {
             }
             return Ok(new { Message = "Token revoked successfully" });
         }
+
+        [HttpPost("health")]
+        public async Task<IActionResult> Health() {
+            return Ok("API is running");
+        }
     }
 }

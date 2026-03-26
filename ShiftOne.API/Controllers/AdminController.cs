@@ -3,11 +3,13 @@ using Microsoft.AspNetCore.Mvc;
 using ShiftOne.Application.Interfaces;
 using ShiftOne.Application.Dtos;
 
+using ShiftOne.Domain.Constants;
+
 namespace ShiftOne.API.Controllers
 {
     [ApiController]
     [Route("api/admin")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = UserRoles.Admin)]
     public class AdminController : ControllerBase {
 
         private readonly IAdminService _adminService;

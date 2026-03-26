@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using ShiftOne.Application.Dtos;
 using ShiftOne.Application.Interfaces;
 using System.Security.Claims;
+using ShiftOne.Domain.Constants;
 
 namespace ShiftOne.API.Controllers {
     [ApiController]
     [Route("api/worker")]
-    [Authorize(Roles = "Worker")]
+    [Authorize(Roles = UserRoles.Worker)]
     public class WorkerController : ControllerBase {
 
         private readonly IAttendanceService _attendanceService;
@@ -17,7 +18,7 @@ namespace ShiftOne.API.Controllers {
         }
 
         [HttpPost("signin")]
-        public async Task<IActionResult> SignIn([FromBody] SignInDto req) {
+        public async Task<IActionResult> SignIn([FromBody] LocationDto req) {
             var userId = GetUserId();
             var message = await _attendanceService.SignInAsync(userId, req.Latitude, req.Longitude);
             if(message == null) {
@@ -27,7 +28,7 @@ namespace ShiftOne.API.Controllers {
         }
 
         [HttpPost("signoff")]
-        public async Task<IActionResult> SignOff([FromBody] SignOffDto req) {
+        public async Task<IActionResult> SignOff([FromBody] LocationDto req) {
             var userId = GetUserId();
             var message = await _attendanceService.SignOffAsync(userId, req.Latitude, req.Longitude);
             if(message == null) {

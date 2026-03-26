@@ -1,4 +1,4 @@
-﻿using Moq;
+using Moq;
 using ShiftOne.Application.Dtos;
 using ShiftOne.Application.Interfaces.Common;
 using ShiftOne.Application.Services.Common;
@@ -26,7 +26,7 @@ namespace ShiftOne.Tests {
                 Email = "john@test.com",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("password123"),
                 Phone = "1234567890",
-                Role = "Admin",
+                Role = ShiftOne.Domain.Constants.UserRoles.Admin,
                 RefreshToken = "old-refresh-token",
                 RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7)
             };
