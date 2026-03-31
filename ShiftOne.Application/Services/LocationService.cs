@@ -28,9 +28,9 @@ public class LocationService : ILocationService {
         var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
         var distance = R * c;
 
-        //if (distance > _radiusKm) {
-        //    throw new Exception($"Action failed. You're outside the allowed location");
-        //}
+        if(distance > _radiusKm) {
+            throw new Exception($"Action failed. You're outside the allowed location");
+        }
     }
 
     private double ToRad(double deg) => deg * Math.PI / 180;
