@@ -6,36 +6,38 @@ using ShiftOne.Domain.Interfaces;
 using ShiftOne.Domain.Interfaces.Common;
 using ShiftOne.Domain.Constants;
 
-namespace ShiftOne.Application.Services
-{
-    public class AttendanceService : IAttendanceService
-    {
+namespace ShiftOne.Application.Services {
+    public class AttendanceService : IAttendanceService {
         private readonly IAttendanceRepository _repo;
         private readonly IUserRepository _userRepo;
         private readonly IConfiguration _config;
         private readonly ILocationService _locationService;
 
-        public AttendanceService(IAttendanceRepository repo, IUserRepository userRepo,ILocationService locationService, IConfiguration config) {
+        public AttendanceService(IAttendanceRepository repo, IUserRepository userRepo, ILocationService locationService, IConfiguration config) {
             _repo = repo;
             _userRepo = userRepo;
             _locationService = locationService;
             _config = config;
         }
 
+        // Returns the current local time at the factory based on the configured timezone
         private DateTime GetFactoryNow() {
             var tzId = _config.GetValue<string>("FactoryLocation:TimeZone") ?? "India Standard Time";
             var tz = TimeZoneInfo.FindSystemTimeZoneById(tzId);
             return TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tz);
         }
 
+        // Returns today's date at the factory location
         private DateTime GetFactoryLocalDate() => GetFactoryNow().Date;
 
+        // Validates the user's location and records a sign-in if no attendance exists for today
         public async Task<string?> SignInAsync(int userId, double lat, double lng) {
-
             _locationService.IsWithinRadius(lat, lng);
 
             var today = GetFactoryLocalDate();
-            if (await _repo.HasAttendanceAsync(userId, today)) return null;
+
+            if(await _repo.HasAttendanceAsync(userId, today))
+                return null;
 
             var record = new Attendance {
                 UserId = userId,
@@ -47,37 +49,42 @@ namespace ShiftOne.Application.Services
             return await _repo.AddAsync(record) ? "Signed In Successfully" : null;
         }
 
+        // Validates the user's location and records a sign-off, calculating total hours worked
         public async Task<string?> SignOffAsync(int userId, double lat, double lng) {
-
             _locationService.IsWithinRadius(lat, lng);
 
             var today = GetFactoryLocalDate();
             var record = await _repo.GetActiveShiftAsync(userId, today);
-            if (record == null) return null;
+
+            if(record == null)
+                return null;
 
             record.SignOffTime = DateTime.UtcNow;
 
-            if (record.SignInTime.HasValue) {
+            if(record.SignInTime.HasValue) {
                 double totalMinutes = (record.SignOffTime.Value - record.SignInTime.Value).TotalMinutes;
                 record.TotalHours = Math.Max(0, totalMinutes / 60.0);
             }
+
             record.Status = AttendanceStatus.SignedOff;
 
             return await _repo.UpdateAsync(record) ? "Signed Off Successfully" : null;
         }
 
+        // Retrieves today's attendance info for a user, including live hours if still signed in
         public async Task<AttendanceInfoDto?> GetTodayInfoAsync(int userId) {
             var today = GetFactoryLocalDate();
             var record = await _repo.GetTodayRecordAsync(userId, today);
 
-            if (record == null) { 
+            if(record == null) {
                 return new AttendanceInfoDto {
                     Status = AttendanceStatus.NotStarted
                 };
             }
 
             double? displayHours = record.TotalHours;
-            if (record.Status == AttendanceStatus.SignedIn && record.SignInTime.HasValue) {
+
+            if(record.Status == AttendanceStatus.SignedIn && record.SignInTime.HasValue) {
                 var now = DateTime.UtcNow;
                 double rawMinutes = (now - record.SignInTime.Value).TotalMinutes;
                 displayHours = Math.Max(0, rawMinutes / 60.0);
@@ -91,18 +98,19 @@ namespace ShiftOne.Application.Services
             };
         }
 
-        public async Task<List<WorkerDto>?> GetAllWorkersAsync()
-        {
+        // Retrieves all workers with their current active shift status for today
+        public async Task<List<WorkerDto>?> GetAllWorkersAsync() {
             var workers = await _userRepo.GetAllWorkersAsync();
-            if (workers == null) return null;
+
+            if(workers == null)
+                return null;
 
             var today = GetFactoryLocalDate();
             var result = new List<WorkerDto>();
-            foreach (var w in workers)
-            {
+
+            foreach(var w in workers) {
                 var isActive = (await _repo.GetActiveShiftAsync(w.Id, today)) != null;
-                result.Add(new WorkerDto
-                {
+                result.Add(new WorkerDto {
                     Id = w.Id,
                     Name = w.Name,
                     Email = w.Email,
@@ -110,12 +118,16 @@ namespace ShiftOne.Application.Services
                     IsWorking = isActive
                 });
             }
+
             return result;
         }
 
+        // Retrieves the full attendance history for a specific worker
         public async Task<List<AttendanceRecordDto>?> GetWorkerHistoryAsync(int userId) {
             var data = await _repo.GetUserHistoryAsync(userId);
-            if (data == null) return null;
+
+            if(data == null)
+                return null;
 
             var worker = await _userRepo.GetByIdAsync(userId);
             var name = worker?.Name ?? "Unknown";
@@ -131,11 +143,15 @@ namespace ShiftOne.Application.Services
             }).ToList();
         }
 
+        // Retrieves attendance records within a specified date range with worker names
         public async Task<List<AttendanceRecordDto>?> GetByDateRangeAsync(DateTime start, DateTime end) {
             var data = await _repo.GetByDateRangeAsync(start, end);
-            if (data == null) return null;
+
+            if(data == null)
+                return null;
 
             var workers = await _userRepo.GetAllWorkersAsync();
+
             return data.Select(r => new AttendanceRecordDto {
                 Date = r.Date,
                 UserId = r.UserId,
@@ -147,27 +163,30 @@ namespace ShiftOne.Application.Services
             }).ToList();
         }
 
-        public async Task<SupervisorAnalyticsDto?> GetSupervisorAnalyticsAsync(int month, int year)
-        {
+        // Builds supervisor analytics by aggregating total hours worked per day for a given month
+        public async Task<SupervisorAnalyticsDto?> GetSupervisorAnalyticsAsync(int month, int year) {
             var records = await _repo.GetMonthlyRecordsAsync(month, year);
-            if (records == null) return null;
 
-            var monthlyHours = records.GroupBy(r => r.Date).Select(g => new DailyHoursDto
-            {
+            if(records == null)
+                return null;
+
+            var monthlyHours = records.GroupBy(r => r.Date).Select(g => new DailyHoursDto {
                 Date = g.Key.ToString("dd MMM"),
                 Hours = Math.Round(g.Sum(r => r.TotalHours ?? 0), 2)
             }).OrderBy(x => x.Date).ToList();
 
-            return new SupervisorAnalyticsDto
-            {
+            return new SupervisorAnalyticsDto {
                 MonthlyHours = monthlyHours
             };
         }
 
+        // Returns a summary of total, completed, and in-progress shifts for a given date
         public async Task<SupervisorHomeDto?> GetSupervisorHomeSummaryAsync(DateTime? date = null) {
             var target = date ?? GetFactoryLocalDate();
             var records = await _repo.GetByDateAsync(target);
-            if (records == null) return null;
+
+            if(records == null)
+                return null;
 
             var workers = await _userRepo.GetAllWorkersAsync() ?? new List<User>();
 
@@ -177,28 +196,36 @@ namespace ShiftOne.Application.Services
                 InProgressShifts = records.Count(r => r.SignOffTime == null)
             };
         }
-        public async Task<bool> ConfirmAutoSignOffAsync(int userId, DateTime date, DateTime actualSignOffTime)
-        {
+
+        // Confirms an auto sign-off by updating the record with the actual sign-off time and total hours
+        public async Task<bool> ConfirmAutoSignOffAsync(int userId, DateTime date, DateTime actualSignOffTime) {
             var record = await _repo.GetPendingAutoSignOffAsync(userId, date.Date);
-            if (record == null) return false;
+
+            if(record == null)
+                return false;
 
             record.SignOffTime = actualSignOffTime;
-            if (record.SignInTime.HasValue)
-            {
+
+            if(record.SignInTime.HasValue) {
                 double totalMinutes = (record.SignOffTime.Value - record.SignInTime.Value).TotalMinutes;
                 record.TotalHours = Math.Max(0, totalMinutes / 60.0);
             }
+
             record.Status = AttendanceStatus.SignedOff;
+
             return await _repo.UpdateAsync(record);
         }
 
+        // Manually signs off a worker by setting the sign-off time and calculating total hours
         public async Task<bool> ManualSignOffAsync(int userId, DateTime date, DateTime signOffTime) {
             var record = await _repo.GetActiveShiftAsync(userId, date.Date);
-            if (record == null || record.Status != AttendanceStatus.SignedIn) return false;
+
+            if(record == null || record.Status != AttendanceStatus.SignedIn)
+                return false;
 
             record.SignOffTime = signOffTime;
 
-            if (record.SignInTime.HasValue) {
+            if(record.SignInTime.HasValue) {
                 double totalMinutes = (record.SignOffTime.Value - record.SignInTime.Value).TotalMinutes;
                 record.TotalHours = Math.Max(0, totalMinutes / 60.0);
             }
@@ -208,6 +235,7 @@ namespace ShiftOne.Application.Services
             return await _repo.UpdateAsync(record);
         }
 
+        // Deletes all attendance records associated with a given user
         public async Task<bool> DeleteUserAttendanceAsync(int userId) => await _repo.DeleteByUserIdAsync(userId);
     }
 }

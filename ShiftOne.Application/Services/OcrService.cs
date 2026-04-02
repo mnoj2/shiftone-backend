@@ -10,8 +10,10 @@ namespace ShiftOne.Application.Services.Admin {
             _ocrRepository = ocrRepository;
         }
 
+        // Sends the file to the OCR repository and maps the extracted result to a FormExtractDto
         public async Task<FormExtractDto?> ExtractFormDataAsync(Stream fileStream, string fileName, string contentType) {
             var result = await _ocrRepository.ExtractAsync(fileStream, fileName, contentType);
+
             if(result == null)
                 return null;
 
@@ -22,6 +24,5 @@ namespace ShiftOne.Application.Services.Admin {
                 Role = result.Role
             };
         }
-
     }
 }

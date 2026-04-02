@@ -4,7 +4,6 @@ using ShiftOne.Domain.Interfaces.Common;
 
 namespace ShiftOne.Application.Services.Common {
     public class AuthService : IAuthService {
-
         private readonly IUserRepository _repo;
         private readonly ITokenService _tokenService;
 
@@ -13,11 +12,12 @@ namespace ShiftOne.Application.Services.Common {
             _tokenService = tokenService;
         }
 
+        // Authenticates the user by email and password, and returns a token pair if successful
         public async Task<TokenResponseDto?> LoginAsync(LoginDto dto) {
-
             var user = await _repo.GetByEmailAsync(dto.Email);
+
             if(user == null || !BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
-                return null; 
+                return null;
 
             var response = new TokenResponseDto {
                 AccessToken = _tokenService.GenerateAccessToken(user),
@@ -28,14 +28,17 @@ namespace ShiftOne.Application.Services.Common {
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
 
             bool isUpdated = await _repo.UpdateRefreshTokenAsync(user.Id, user.RefreshToken, user.RefreshTokenExpiryTime.Value);
+
             if(!isUpdated)
-                return null; 
+                return null;
 
             return response;
         }
 
+        // Validates the provided refresh token and issues a new token pair if still valid
         public async Task<TokenResponseDto?> RefreshTokenAsync(string refreshToken) {
             var user = await _repo.GetByRefreshTokenAsync(refreshToken);
+
             if(user == null || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
                 return null;
 
@@ -48,14 +51,17 @@ namespace ShiftOne.Application.Services.Common {
             user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(7);
 
             bool isUpdated = await _repo.UpdateRefreshTokenAsync(user.Id, user.RefreshToken, user.RefreshTokenExpiryTime.Value);
+
             if(!isUpdated)
                 return null;
 
             return response;
         }
 
+        // Revokes the refresh token by clearing it and setting its expiry to the past
         public async Task<bool> RevokeRefreshTokenAsync(string refreshToken) {
             var user = await _repo.GetByRefreshTokenAsync(refreshToken);
+
             if(user == null)
                 return false;
 

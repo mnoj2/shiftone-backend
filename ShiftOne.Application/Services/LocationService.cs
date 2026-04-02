@@ -4,7 +4,6 @@ using ShiftOne.Application.Interfaces;
 namespace ShiftOne.Application.Services;
 
 public class LocationService : ILocationService {
-
     private readonly double _latitude;
     private readonly double _longitude;
     private readonly double _radiusKm;
@@ -15,6 +14,7 @@ public class LocationService : ILocationService {
         _radiusKm = config.GetValue<double>("CompanyLocation:RadiusKm");
     }
 
+    // Validates that the user is within the allowed radius using the Haversine formula, throws if outside
     public void IsWithinRadius(double userLat, double userLng) {
         const double R = 6371;
 
@@ -33,5 +33,6 @@ public class LocationService : ILocationService {
         }
     }
 
+    // Converts degrees to radians
     private double ToRad(double deg) => deg * Math.PI / 180;
 }
