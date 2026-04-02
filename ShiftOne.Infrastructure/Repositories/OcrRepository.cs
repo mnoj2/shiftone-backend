@@ -5,7 +5,6 @@ using System.Text.Json;
 
 namespace ShiftOne.Infrastructure.Repositories.Common {
     public class OcrRepository : IOcrRepository {
-
         private readonly HttpClient _client;
         private readonly string OcrUrl;
 
@@ -14,23 +13,26 @@ namespace ShiftOne.Infrastructure.Repositories.Common {
             OcrUrl = configuration["OcrUrl"] ?? throw new InvalidOperationException("OCR service URL not configured");
         }
 
-
+        // Sends the file to the OCR service and returns the extracted form data
         public async Task<FormExtractResult?> ExtractAsync(Stream fileStream, string fileName, string contentType) {
-            using var form = new MultipartFormDataContent();
-            using var fileContent = new StreamContent(fileStream);
 
-            fileContent.Headers.ContentType =
-                new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
+            using(var form = new MultipartFormDataContent()) {
+                using(var fileContent = new StreamContent(fileStream)) {
 
-            form.Add(fileContent, "file", fileName);
+                    fileContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(contentType);
 
-            var response = await _client.PostAsync(OcrUrl, form);
+                    form.Add(fileContent, "file", fileName);
 
-            if(!response.IsSuccessStatusCode)
-                return null;
+                    var response = await _client.PostAsync(OcrUrl, form);
 
-            var json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<FormExtractResult>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    if(!response.IsSuccessStatusCode)
+                        return null;
+
+                    var json = await response.Content.ReadAsStringAsync();
+
+                    return JsonSerializer.Deserialize<FormExtractResult>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                }
+            }
         }
     }
 }

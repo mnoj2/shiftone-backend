@@ -6,13 +6,13 @@ using System.Data;
 
 namespace ShiftOne.Infrastructure.Repositories {
     public class UserRepository : IUserRepository {
-
         private readonly string _connectionString;
+
         public UserRepository(IConfiguration configuration) {
             _connectionString = configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string not found.");
         }
 
-
+        // Maps a SqlDataReader row to a User entity
         private static User MapUser(SqlDataReader reader) {
             return new User {
                 Id = reader.GetInt32(reader.GetOrdinal("Id")),
@@ -27,126 +27,193 @@ namespace ShiftOne.Infrastructure.Repositories {
             };
         }
 
+        // Retrieves a user by their email address
         public async Task<User?> GetByEmailAsync(string email) {
-            using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("sp_get_user_by_email", connection);
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.AddWithValue("@Email", email);
-            var statusCodeParam = new SqlParameter("@status_code", SqlDbType.VarChar, 1) { Direction = ParameterDirection.Output };
-            var statusMsgParam = new SqlParameter("@status_msg", SqlDbType.VarChar, -1) { Direction = ParameterDirection.Output };
-            command.Parameters.Add(statusCodeParam);
-            command.Parameters.Add(statusMsgParam);
-            await connection.OpenAsync();
-            using var reader = await command.ExecuteReaderAsync();
-            if(await reader.ReadAsync()) return MapUser(reader);
-            return null;
+            using(var connection = new SqlConnection(_connectionString)) {
+                using(var command = new SqlCommand("sp_get_user_by_email", connection)) {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@Email", email);
+
+                    var statusCodeParam = new SqlParameter("@status_code", SqlDbType.VarChar, 1) { Direction = ParameterDirection.Output };
+                    var statusMsgParam = new SqlParameter("@status_msg", SqlDbType.VarChar, -1) { Direction = ParameterDirection.Output };
+
+                    command.Parameters.Add(statusCodeParam);
+                    command.Parameters.Add(statusMsgParam);
+
+                    await connection.OpenAsync();
+
+                    using(var reader = await command.ExecuteReaderAsync()) {
+                        if(await reader.ReadAsync())
+                            return MapUser(reader);
+                        return null;
+                    }
+                }
+            }
         }
 
+        // Retrieves a user by their ID
         public async Task<User?> GetByIdAsync(int id) {
-             using var connection = new SqlConnection(_connectionString);
-             using var command = new SqlCommand("sp_get_user_by_id", connection);
-             command.CommandType = CommandType.StoredProcedure;
-             command.Parameters.AddWithValue("@Id", id);
-             await connection.OpenAsync();
-             using var reader = await command.ExecuteReaderAsync();
-             if (await reader.ReadAsync()) return MapUser(reader);
-             return null;
+            using(var connection = new SqlConnection(_connectionString)) {
+                using(var command = new SqlCommand("sp_get_user_by_id", connection)) {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@Id", id);
+
+                    await connection.OpenAsync();
+
+                    using(var reader = await command.ExecuteReaderAsync()) {
+                        if(await reader.ReadAsync())
+                            return MapUser(reader);
+                        return null;
+                    }
+                }
+            }
         }
 
+        // Adds a new user to the database
         public async Task<bool> AddAsync(User user) {
-            using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("sp_add_user", connection);
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.AddWithValue("@Name", user.Name);
-            command.Parameters.AddWithValue("@Email", user.Email);
-            command.Parameters.AddWithValue("@PasswordHash", user.PasswordHash);
-            command.Parameters.AddWithValue("@Phone", user.Phone);
-            command.Parameters.AddWithValue("@Role", user.Role);
-            var statusCodeParam = new SqlParameter("@status_code", SqlDbType.VarChar, 1) { Direction = ParameterDirection.Output };
-            var statusMsgParam = new SqlParameter("@status_msg", SqlDbType.VarChar, -1) { Direction = ParameterDirection.Output };
-            command.Parameters.Add(statusCodeParam);
-            command.Parameters.Add(statusMsgParam);
-            await connection.OpenAsync();
-            await command.ExecuteNonQueryAsync();
-            return (string)statusCodeParam.Value == "s";
+            using(var connection = new SqlConnection(_connectionString)) {
+                using(var command = new SqlCommand("sp_add_user", connection)) {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@Name", user.Name);
+                    command.Parameters.AddWithValue("@Email", user.Email);
+                    command.Parameters.AddWithValue("@PasswordHash", user.PasswordHash);
+                    command.Parameters.AddWithValue("@Phone", user.Phone);
+                    command.Parameters.AddWithValue("@Role", user.Role);
+
+                    var statusCodeParam = new SqlParameter("@status_code", SqlDbType.VarChar, 1) { Direction = ParameterDirection.Output };
+                    var statusMsgParam = new SqlParameter("@status_msg", SqlDbType.VarChar, -1) { Direction = ParameterDirection.Output };
+
+                    command.Parameters.Add(statusCodeParam);
+                    command.Parameters.Add(statusMsgParam);
+
+                    await connection.OpenAsync();
+                    await command.ExecuteNonQueryAsync();
+
+                    return (string) statusCodeParam.Value == "s";
+                }
+            }
         }
 
+        // Updates an existing user's details
         public async Task<bool> UpdateAsync(User user) {
-            using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("sp_update_user", connection);
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.AddWithValue("@Id", user.Id);
-            command.Parameters.AddWithValue("@Name", user.Name);
-            command.Parameters.AddWithValue("@Email", user.Email);
-            command.Parameters.AddWithValue("@PasswordHash", user.PasswordHash);
-            command.Parameters.AddWithValue("@Phone", user.Phone);
-            command.Parameters.AddWithValue("@Role", user.Role);
-            await connection.OpenAsync();
-            var result = await command.ExecuteNonQueryAsync();
-            return result > 0;
+            using(var connection = new SqlConnection(_connectionString)) {
+                using(var command = new SqlCommand("sp_update_user", connection)) {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@Id", user.Id);
+                    command.Parameters.AddWithValue("@Name", user.Name);
+                    command.Parameters.AddWithValue("@Email", user.Email);
+                    command.Parameters.AddWithValue("@PasswordHash", user.PasswordHash);
+                    command.Parameters.AddWithValue("@Phone", user.Phone);
+                    command.Parameters.AddWithValue("@Role", user.Role);
+
+                    await connection.OpenAsync();
+
+                    var result = await command.ExecuteNonQueryAsync();
+
+                    return result > 0;
+                }
+            }
         }
 
+        // Deletes a user by their ID
         public async Task<bool> DeleteAsync(int id) {
-            using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("sp_delete_user", connection);
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.AddWithValue("@Id", id);
-            await connection.OpenAsync();
-            var result = await command.ExecuteNonQueryAsync();
-            return result > 0;
+            using(var connection = new SqlConnection(_connectionString)) {
+                using(var command = new SqlCommand("sp_delete_user", connection)) {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@Id", id);
+
+                    await connection.OpenAsync();
+
+                    var result = await command.ExecuteNonQueryAsync();
+
+                    return result > 0;
+                }
+            }
         }
 
+        // Updates the refresh token and its expiry time for a user
         public async Task<bool> UpdateRefreshTokenAsync(int userId, string refreshToken, DateTime expiryTime) {
-            using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("sp_add_refreshtoken_details", connection);
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.AddWithValue("@Id", userId);
-            command.Parameters.AddWithValue("@RefreshToken", refreshToken);
-            command.Parameters.AddWithValue("@RefreshTokenExpiryTime", expiryTime);
-            var statusCodeParam = new SqlParameter("@status_code", SqlDbType.VarChar, 1) { Direction = ParameterDirection.Output };
-            var statusMsgParam = new SqlParameter("@status_msg", SqlDbType.VarChar, -1) { Direction = ParameterDirection.Output };
-            command.Parameters.Add(statusCodeParam);
-            command.Parameters.Add(statusMsgParam);
-            await connection.OpenAsync();
-            await command.ExecuteNonQueryAsync();
-            return statusCodeParam.Value?.ToString() == "s";
+            using(var connection = new SqlConnection(_connectionString)) {
+                using(var command = new SqlCommand("sp_add_refreshtoken_details", connection)) {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@Id", userId);
+                    command.Parameters.AddWithValue("@RefreshToken", refreshToken);
+                    command.Parameters.AddWithValue("@RefreshTokenExpiryTime", expiryTime);
+
+                    var statusCodeParam = new SqlParameter("@status_code", SqlDbType.VarChar, 1) { Direction = ParameterDirection.Output };
+                    var statusMsgParam = new SqlParameter("@status_msg", SqlDbType.VarChar, -1) { Direction = ParameterDirection.Output };
+
+                    command.Parameters.Add(statusCodeParam);
+                    command.Parameters.Add(statusMsgParam);
+
+                    await connection.OpenAsync();
+                    await command.ExecuteNonQueryAsync();
+
+                    return statusCodeParam.Value?.ToString() == "s";
+                }
+            }
         }
 
+        // Retrieves a user by their refresh token
         public async Task<User?> GetByRefreshTokenAsync(string refreshToken) {
-            using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("sp_get_user_by_refreshtoken", connection);
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.AddWithValue("@RefreshToken", refreshToken);
-            var statusCodeParam = new SqlParameter("@status_code", SqlDbType.VarChar, 1) { Direction = ParameterDirection.Output };
-            var statusMsgParam = new SqlParameter("@status_msg", SqlDbType.VarChar, -1) { Direction = ParameterDirection.Output };
-            command.Parameters.Add(statusCodeParam);
-            command.Parameters.Add(statusMsgParam);
-            await connection.OpenAsync();
-            using var reader = await command.ExecuteReaderAsync();
-            if(await reader.ReadAsync()) return MapUser(reader);
-            return null;
+            using(var connection = new SqlConnection(_connectionString)) {
+                using(var command = new SqlCommand("sp_get_user_by_refreshtoken", connection)) {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@RefreshToken", refreshToken);
+
+                    var statusCodeParam = new SqlParameter("@status_code", SqlDbType.VarChar, 1) { Direction = ParameterDirection.Output };
+                    var statusMsgParam = new SqlParameter("@status_msg", SqlDbType.VarChar, -1) { Direction = ParameterDirection.Output };
+
+                    command.Parameters.Add(statusCodeParam);
+                    command.Parameters.Add(statusMsgParam);
+
+                    await connection.OpenAsync();
+
+                    using(var reader = await command.ExecuteReaderAsync()) {
+                        if(await reader.ReadAsync())
+                            return MapUser(reader);
+                        return null;
+                    }
+                }
+            }
         }
 
+        // Retrieves all users with the Worker role
         public async Task<List<User>> GetAllWorkersAsync() {
-            using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("sp_get_all_workers", connection);
-            command.CommandType = CommandType.StoredProcedure;
-            await connection.OpenAsync();
-            var list = new List<User>();
-            using var reader = await command.ExecuteReaderAsync();
-            while (await reader.ReadAsync()) list.Add(MapUser(reader));
-            return list;
+            using(var connection = new SqlConnection(_connectionString)) {
+                using(var command = new SqlCommand("sp_get_all_workers", connection)) {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    await connection.OpenAsync();
+
+                    var list = new List<User>();
+
+                    using(var reader = await command.ExecuteReaderAsync()) {
+                        while(await reader.ReadAsync())
+                            list.Add(MapUser(reader));
+                        return list;
+                    }
+                }
+            }
         }
 
+        // Retrieves all users from the database
         public async Task<List<User>> GetAllUsersAsync() {
-            using var connection = new SqlConnection(_connectionString);
-            using var command = new SqlCommand("sp_get_all_users", connection);
-            command.CommandType = CommandType.StoredProcedure;
-            await connection.OpenAsync();
-            var list = new List<User>();
-            using var reader = await command.ExecuteReaderAsync();
-            while (await reader.ReadAsync()) list.Add(MapUser(reader));
-            return list;
+            using(var connection = new SqlConnection(_connectionString)) {
+                using(var command = new SqlCommand("sp_get_all_users", connection)) {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    await connection.OpenAsync();
+
+                    var list = new List<User>();
+
+                    using(var reader = await command.ExecuteReaderAsync()) {
+                        while(await reader.ReadAsync())
+                            list.Add(MapUser(reader));
+                        return list;
+                    }
+                }
+            }
         }
     }
 }
