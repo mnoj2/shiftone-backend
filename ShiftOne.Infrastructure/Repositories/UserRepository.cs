@@ -32,10 +32,10 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_get_user_by_email", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@Email", email);
+                    command.Parameters.AddWithValue("@p_Email", email);
 
-                    var statusCodeParam = new SqlParameter("@status_code", SqlDbType.VarChar, 1) { Direction = ParameterDirection.Output };
-                    var statusMsgParam = new SqlParameter("@status_msg", SqlDbType.VarChar, -1) { Direction = ParameterDirection.Output };
+                    var statusCodeParam = new SqlParameter("@p_StatusCode", SqlDbType.NVarChar, 1) { Direction = ParameterDirection.Output };
+                    var statusMsgParam = new SqlParameter("@p_StatusMsg", SqlDbType.NVarChar, 255) { Direction = ParameterDirection.Output };
 
                     command.Parameters.Add(statusCodeParam);
                     command.Parameters.Add(statusMsgParam);
@@ -56,7 +56,7 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_get_user_by_id", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@Id", id);
+                    command.Parameters.AddWithValue("@p_Id", id);
 
                     await connection.OpenAsync();
 
@@ -74,14 +74,14 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_add_user", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@Name", user.Name);
-                    command.Parameters.AddWithValue("@Email", user.Email);
-                    command.Parameters.AddWithValue("@PasswordHash", user.PasswordHash);
-                    command.Parameters.AddWithValue("@Phone", user.Phone);
-                    command.Parameters.AddWithValue("@Role", user.Role);
+                    command.Parameters.AddWithValue("@p_Name", user.Name);
+                    command.Parameters.AddWithValue("@p_Email", user.Email);
+                    command.Parameters.AddWithValue("@p_PasswordHash", user.PasswordHash);
+                    command.Parameters.AddWithValue("@p_Phone", user.Phone);
+                    command.Parameters.AddWithValue("@p_Role", user.Role);
 
-                    var statusCodeParam = new SqlParameter("@status_code", SqlDbType.VarChar, 1) { Direction = ParameterDirection.Output };
-                    var statusMsgParam = new SqlParameter("@status_msg", SqlDbType.VarChar, -1) { Direction = ParameterDirection.Output };
+                    var statusCodeParam = new SqlParameter("@p_StatusCode", SqlDbType.NVarChar, 1) { Direction = ParameterDirection.Output };
+                    var statusMsgParam = new SqlParameter("@p_StatusMsg", SqlDbType.NVarChar, 255) { Direction = ParameterDirection.Output };
 
                     command.Parameters.Add(statusCodeParam);
                     command.Parameters.Add(statusMsgParam);
@@ -99,12 +99,12 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_update_user", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@Id", user.Id);
-                    command.Parameters.AddWithValue("@Name", user.Name);
-                    command.Parameters.AddWithValue("@Email", user.Email);
-                    command.Parameters.AddWithValue("@PasswordHash", user.PasswordHash);
-                    command.Parameters.AddWithValue("@Phone", user.Phone);
-                    command.Parameters.AddWithValue("@Role", user.Role);
+                    command.Parameters.AddWithValue("@p_Id", user.Id);
+                    command.Parameters.AddWithValue("@p_Name", user.Name);
+                    command.Parameters.AddWithValue("@p_Email", user.Email);
+                    command.Parameters.AddWithValue("@p_PasswordHash", user.PasswordHash);
+                    command.Parameters.AddWithValue("@p_Phone", user.Phone);
+                    command.Parameters.AddWithValue("@p_Role", user.Role);
 
                     await connection.OpenAsync();
 
@@ -120,7 +120,7 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_delete_user", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@Id", id);
+                    command.Parameters.AddWithValue("@p_Id", id);
 
                     await connection.OpenAsync();
 
@@ -136,12 +136,12 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_add_refreshtoken_details", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@Id", userId);
-                    command.Parameters.AddWithValue("@RefreshToken", refreshToken);
-                    command.Parameters.AddWithValue("@RefreshTokenExpiryTime", expiryTime);
+                    command.Parameters.AddWithValue("@p_Id", userId);
+                    command.Parameters.AddWithValue("@p_RefreshToken", refreshToken);
+                    command.Parameters.AddWithValue("@p_RefreshTokenExpiryTime", expiryTime);
 
-                    var statusCodeParam = new SqlParameter("@status_code", SqlDbType.VarChar, 1) { Direction = ParameterDirection.Output };
-                    var statusMsgParam = new SqlParameter("@status_msg", SqlDbType.VarChar, -1) { Direction = ParameterDirection.Output };
+                    var statusCodeParam = new SqlParameter("@p_StatusCode", SqlDbType.NVarChar, 1) { Direction = ParameterDirection.Output };
+                    var statusMsgParam = new SqlParameter("@p_StatusMsg", SqlDbType.NVarChar, 255) { Direction = ParameterDirection.Output };
 
                     command.Parameters.Add(statusCodeParam);
                     command.Parameters.Add(statusMsgParam);
@@ -159,10 +159,10 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_get_user_by_refreshtoken", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@RefreshToken", refreshToken);
+                    command.Parameters.AddWithValue("@p_RefreshToken", refreshToken);
 
-                    var statusCodeParam = new SqlParameter("@status_code", SqlDbType.VarChar, 1) { Direction = ParameterDirection.Output };
-                    var statusMsgParam = new SqlParameter("@status_msg", SqlDbType.VarChar, -1) { Direction = ParameterDirection.Output };
+                    var statusCodeParam = new SqlParameter("@p_StatusCode", SqlDbType.NVarChar, 1) { Direction = ParameterDirection.Output };
+                    var statusMsgParam = new SqlParameter("@p_StatusMsg", SqlDbType.NVarChar, 255) { Direction = ParameterDirection.Output };
 
                     command.Parameters.Add(statusCodeParam);
                     command.Parameters.Add(statusMsgParam);

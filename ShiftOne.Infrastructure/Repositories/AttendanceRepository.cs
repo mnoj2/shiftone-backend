@@ -31,8 +31,8 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_has_attendance", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@UserId", userId);
-                    command.Parameters.AddWithValue("@Date", date.Date);
+                    command.Parameters.AddWithValue("@p_UserId", userId);
+                    command.Parameters.AddWithValue("@p_Date", date.Date);
 
                     await connection.OpenAsync();
 
@@ -48,15 +48,15 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_add_attendance", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@UserId", attendance.UserId);
-                    command.Parameters.AddWithValue("@Date", attendance.Date.Date);
-                    command.Parameters.AddWithValue("@Status", attendance.Status);
-                    command.Parameters.AddWithValue("@SignInTime", (object) attendance.SignInTime ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@SignOffTime", (object) attendance.SignOffTime ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@TotalHours", (object) attendance.TotalHours ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@p_UserId", attendance.UserId);
+                    command.Parameters.AddWithValue("@p_Date", attendance.Date.Date);
+                    command.Parameters.AddWithValue("@p_Status", attendance.Status);
+                    command.Parameters.AddWithValue("@p_SignInTime", (object) attendance.SignInTime ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@p_SignOffTime", (object) attendance.SignOffTime ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@p_TotalHours", (object) attendance.TotalHours ?? DBNull.Value);
 
-                    var statusCodeParam = new SqlParameter("@status_code", SqlDbType.VarChar, 1) { Direction = ParameterDirection.Output };
-                    var statusMsgParam = new SqlParameter("@status_msg", SqlDbType.VarChar, -1) { Direction = ParameterDirection.Output };
+                    var statusCodeParam = new SqlParameter("@p_StatusCode", SqlDbType.VarChar, 1) { Direction = ParameterDirection.Output };
+                    var statusMsgParam = new SqlParameter("@p_StatusMsg", SqlDbType.NVarChar, 255) { Direction = ParameterDirection.Output };
 
                     command.Parameters.Add(statusCodeParam);
                     command.Parameters.Add(statusMsgParam);
@@ -74,14 +74,14 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_update_attendance", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@Id", attendance.Id);
-                    command.Parameters.AddWithValue("@Status", attendance.Status);
-                    command.Parameters.AddWithValue("@SignInTime", (object) attendance.SignInTime ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@SignOffTime", (object) attendance.SignOffTime ?? DBNull.Value);
-                    command.Parameters.AddWithValue("@TotalHours", (object) attendance.TotalHours ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@p_Id", attendance.Id);
+                    command.Parameters.AddWithValue("@p_Status", attendance.Status);
+                    command.Parameters.AddWithValue("@p_SignInTime", (object) attendance.SignInTime ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@p_SignOffTime", (object) attendance.SignOffTime ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@p_TotalHours", (object) attendance.TotalHours ?? DBNull.Value);
 
-                    var statusCodeParam = new SqlParameter("@status_code", SqlDbType.VarChar, 1) { Direction = ParameterDirection.Output };
-                    var statusMsgParam = new SqlParameter("@status_msg", SqlDbType.VarChar, -1) { Direction = ParameterDirection.Output };
+                    var statusCodeParam = new SqlParameter("@p_StatusCode", SqlDbType.VarChar, 1) { Direction = ParameterDirection.Output };
+                    var statusMsgParam = new SqlParameter("@p_StatusMsg", SqlDbType.NVarChar, 255) { Direction = ParameterDirection.Output };
 
                     command.Parameters.Add(statusCodeParam);
                     command.Parameters.Add(statusMsgParam);
@@ -99,8 +99,8 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_get_active_shift", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@UserId", userId);
-                    command.Parameters.AddWithValue("@Date", date.Date);
+                    command.Parameters.AddWithValue("@p_UserId", userId);
+                    command.Parameters.AddWithValue("@p_Date", date.Date);
 
                     await connection.OpenAsync();
 
@@ -118,8 +118,8 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_get_today_record", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@UserId", userId);
-                    command.Parameters.AddWithValue("@Date", date.Date);
+                    command.Parameters.AddWithValue("@p_UserId", userId);
+                    command.Parameters.AddWithValue("@p_Date", date.Date);
 
                     await connection.OpenAsync();
 
@@ -137,7 +137,7 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_get_user_history", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@UserId", userId);
+                    command.Parameters.AddWithValue("@p_UserId", userId);
 
                     await connection.OpenAsync();
 
@@ -157,7 +157,7 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_get_user_history_count", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@UserId", userId);
+                    command.Parameters.AddWithValue("@p_UserId", userId);
 
                     await connection.OpenAsync();
 
@@ -171,8 +171,8 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_get_attendance_by_range", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@Start", start.Date);
-                    command.Parameters.AddWithValue("@End", end.Date);
+                    command.Parameters.AddWithValue("@p_Start", start.Date);
+                    command.Parameters.AddWithValue("@p_End", end.Date);
 
                     await connection.OpenAsync();
 
@@ -192,8 +192,8 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_get_monthly_records", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@Month", month);
-                    command.Parameters.AddWithValue("@Year", year);
+                    command.Parameters.AddWithValue("@p_Month", month);
+                    command.Parameters.AddWithValue("@p_Year", year);
 
                     await connection.OpenAsync();
 
@@ -213,7 +213,7 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_get_attendance_by_date", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@Date", date.Date);
+                    command.Parameters.AddWithValue("@p_Date", date.Date);
 
                     await connection.OpenAsync();
 
@@ -233,8 +233,8 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_get_pending_auto_signoff", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@UserId", userId);
-                    command.Parameters.AddWithValue("@Date", date.Date);
+                    command.Parameters.AddWithValue("@p_UserId", userId);
+                    command.Parameters.AddWithValue("@p_Date", date.Date);
 
                     await connection.OpenAsync();
 
@@ -252,8 +252,8 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_get_today_attendance_summary", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@UserId", userId);
-                    command.Parameters.AddWithValue("@Date", date.Date);
+                    command.Parameters.AddWithValue("@p_UserId", userId);
+                    command.Parameters.AddWithValue("@p_Date", date.Date);
 
                     await connection.OpenAsync();
 
@@ -276,7 +276,7 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_delete_attendance_by_userid", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@UserId", userId);
+                    command.Parameters.AddWithValue("@p_UserId", userId);
 
                     await connection.OpenAsync();
 
@@ -292,11 +292,11 @@ namespace ShiftOne.Infrastructure.Repositories {
             using(var connection = new SqlConnection(_connectionString)) {
                 using(var command = new SqlCommand("sp_get_shift_by_worker_date", connection)) {
                     command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@WorkerId", workerId);
-                    command.Parameters.AddWithValue("@Date", date.Date);
+                    command.Parameters.AddWithValue("@p_WorkerId", workerId);
+                    command.Parameters.AddWithValue("@p_Date", date.Date);
 
-                    var statusCodeParam = new SqlParameter("@status_code", SqlDbType.VarChar, 1) { Direction = ParameterDirection.Output };
-                    var statusMsgParam = new SqlParameter("@status_msg", SqlDbType.VarChar, -1) { Direction = ParameterDirection.Output };
+                    var statusCodeParam = new SqlParameter("@p_StatusCode", SqlDbType.VarChar, 1) { Direction = ParameterDirection.Output };
+                    var statusMsgParam = new SqlParameter("@p_StatusMsg", SqlDbType.NVarChar, 255) { Direction = ParameterDirection.Output };
 
                     command.Parameters.Add(statusCodeParam);
                     command.Parameters.Add(statusMsgParam);
